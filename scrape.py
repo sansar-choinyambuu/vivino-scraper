@@ -12,6 +12,9 @@ _VIVINO_URL = "https://www.vivino.com/api/explore/explore"
 _HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko/20100101 Firefox/66.0"}
 _MATCHES_PER_PAGE = 100
 
+_PRICE_RANGE_MIN = 1
+_PRICE_RANGE_MAX = 500
+
 _OUTPUT_FILE = "wines.pickle"
 _DOWNLOAD_LABEL_SIZE = "label_medium"
 _LABELS_OUTPUT_DIR = "labels"
@@ -43,29 +46,37 @@ def scrape():
     if os.path.isfile(_OUTPUT_FILE):
         wines = pickle.load(open(_OUTPUT_FILE, "rb"))
     else:
-        unique_wines = set()
-        page = 1
-        total_pages = 1
         wines = []
+        unique_wines = set()
 
-        while page <= total_pages:
-            try:
-                response = requests.get(
-                    _VIVINO_URL,
-                    params = {"page": f"{page}", **params},
-                    headers= _HEADERS
-                )
-                records_matched = response.json()["explore_vintage"]["records_matched"]
-                total_pages = records_matched // _MATCHES_PER_PAGE + 1
-                new_wines = [wine for wine in response.json()["explore_vintage"]["matches"] if wine["vintage"]["id"] not in unique_wines]
-                wines.extend(new_wines)
-                unique_wines.update([wine["vintage"]["id"] for wine in new_wines])
-            except:
+        for price in range(_PRICE_RANGE_MIN, _PRICE_RANGE_MAX):
+            page = 1
+            total_pages = 1
+
+            while page <= total_pages:
+                try:
+                    response = requests.get(
+                        _VIVINO_URL,
+                        params = {
+                            "page": f"{page}", 
+                            "price_range_min": price,
+                            "price_range_max": price + 1,
+                            **params
+                            },
+                        headers= _HEADERS
+                    )
+                    records_matched = response.json()["explore_vintage"]["records_matched"]
+                    total_pages = records_matched // _MATCHES_PER_PAGE + 1
+                    new_wines = [wine for wine in response.json()["explore_vintage"]["matches"] if wine["vintage"]["id"] not in unique_wines]
+                    wines.extend(new_wines)
+                    unique_wines.update([wine["vintage"]["id"] for wine in new_wines])
+                except:
+                    print(f"exception occured while processing page {page} of {total_pages} for price {price}-{price+1}")
+                    page += 1
+                    continue
+
+                print(f"price {price}-{price+1} - total: {records_matched} - scraped page {page} of {total_pages}")
                 page += 1
-                continue
-
-            print(f"Scraped page {page} of {total_pages}")
-            page += 1
 
         pickle.dump(wines, open(_OUTPUT_FILE, "wb"))
 
