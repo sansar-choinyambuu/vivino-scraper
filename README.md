@@ -14,10 +14,12 @@ If --download_labels argument is given, all wine labels are downloaded under lab
 usage: scrape.py [-h] [--filter_json FILTER_JSON] [--download_labels]
 
 optional arguments:
-  -h, --help            show this help message and exit
-  --filter_json FILTER_JSON
-                        the path to filter json file
-  --download_labels
+
+  -h, --help                    show this help message and exit
+
+  --filter_json FILTER_JSON     the path to filter json file
+
+  --download_labels             downloads wine labels if specified
 
 ## Filters
 The following are the valid filters for vivino's explore API:

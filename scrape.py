@@ -23,7 +23,8 @@ parser.add_argument('--filter_json',
                     help='the path to filter json file')
 parser.add_argument('--download_labels', 
                     dest='download_labels', 
-                    action='store_true')
+                    action='store_true',
+                    help="downloads wine labels if specified")
 args = parser.parse_args()
 
 if args.filter_json and not os.path.isfile(args.filter_json):
