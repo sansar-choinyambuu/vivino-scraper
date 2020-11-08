@@ -6,7 +6,7 @@ Scraped data is saved in pickle format.
 If --download_labels argument is given, all wine labels are downloaded under labels folder as well.
 
 ## Installation
-Prerequisites are listed in requirements.txt
+`pip install -r requirements.txt`
 
 ## Usage
 `python scrape.py --filter filter.json --download_labels`
